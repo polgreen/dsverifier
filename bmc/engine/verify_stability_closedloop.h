@@ -21,39 +21,39 @@ extern digital_system controller;
 int verify_stability_closedloop_using_dslib(void){
 
 	/* generating closed loop for series or feedback */
-	double * c_num = controller.b;
+	float * c_num = controller.b;
 	int c_num_size = controller.b_size;
-	double * c_den = controller.a;
+	float * c_den = controller.a;
 	int c_den_size = controller.a_size;
 
 	/* quantizing controller coefficients */
 	fxp_t c_num_fxp[controller.b_size];
-	fxp_double_to_fxp_array(c_num, c_num_fxp, controller.b_size);
+	fxp_float_to_fxp_array(c_num, c_num_fxp, controller.b_size);
 	fxp_t c_den_fxp[controller.a_size];
-	fxp_double_to_fxp_array(c_den, c_den_fxp, controller.a_size);
+	fxp_float_to_fxp_array(c_den, c_den_fxp, controller.a_size);
 
 	/* getting quantized controller coefficients  */
-	double c_num_qtz[controller.b_size];
-	fxp_to_double_array(c_num_qtz, c_num_fxp, controller.b_size);
-	double c_den_qtz[controller.a_size];
-	fxp_to_double_array(c_den_qtz, c_den_fxp, controller.a_size);
+	float c_num_qtz[controller.b_size];
+	fxp_to_float_array(c_num_qtz, c_num_fxp, controller.b_size);
+	float c_den_qtz[controller.a_size];
+	fxp_to_float_array(c_den_qtz, c_den_fxp, controller.a_size);
 
 	/* getting plant coefficients */
 	#if (BMC == ESBMC)
-		double * p_num = plant.b;
+		float * p_num = plant.b;
 		int p_num_size = plant.b_size;
-		double * p_den = plant.a;
+		float * p_den = plant.a;
 		int p_den_size = plant.a_size;
 	#elif (BMC == CBMC)
-		double * p_num = plant_cbmc.b;
+		float * p_num = plant_cbmc.b;
 		int p_num_size = plant.b_size;
-		double * p_den = plant_cbmc.a;
+		float * p_den = plant_cbmc.a;
 		int p_den_size = plant.a_size;
 	#endif
 
-	double ans_num[100];
+	float ans_num[100];
 	int ans_num_size = controller.b_size + plant.b_size - 1;
-	double ans_den[100];
+	float ans_den[100];
 	int ans_den_size = controller.a_size + plant.a_size - 1;
 
 	#if (CONNECTION_MODE == SERIES)

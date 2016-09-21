@@ -22,8 +22,8 @@ extern implementation impl;
 int verify_timing_msp_430(void) {
 
 	/* prepare initial values */
-	double y[X_SIZE_VALUE];
-	double x[X_SIZE_VALUE];
+	float y[X_SIZE_VALUE];
+	float x[X_SIZE_VALUE];
 	int i;
 	for (i = 0; i < X_SIZE_VALUE; ++i) {
 		y[i] = 0;
@@ -38,9 +38,9 @@ int verify_timing_msp_430(void) {
 		Nw = ds.a_size > ds.b_size ? ds.a_size : ds.b_size;
 	#endif
 
-	double yaux[ds.a_size];
-	double xaux[ds.b_size];
-	double waux[Nw];
+	float yaux[ds.a_size];
+	float xaux[ds.b_size];
+	float waux[Nw];
 
 	for (i = 0; i < ds.a_size; ++i) {
 		yaux[i] = 0;
@@ -52,27 +52,27 @@ int verify_timing_msp_430(void) {
 		waux[i] = 0;
 	}
 
-	double xk, temp;
-	double *aptr, *bptr, *xptr, *yptr, *wptr;
+	float xk, temp;
+	float *aptr, *bptr, *xptr, *yptr, *wptr;
 
 	int j;
 	for (i = 0; i < X_SIZE_VALUE; ++i) {
 		/* direct form I realization */
 		#if (REALIZATION == DFI || REALIZATION == DDFI)
 			shiftL(x[i], xaux, ds.b_size);
-			y[i] = double_direct_form_1_MSP430(yaux, xaux, ds.a, ds.b, ds.a_size, ds.b_size);
+			y[i] = float_direct_form_1_MSP430(yaux, xaux, ds.a, ds.b, ds.a_size, ds.b_size);
 			shiftL(y[i], yaux, ds.a_size);
 		#endif
 
 		/* direct form II realization */
 		#if (REALIZATION == DFII || REALIZATION == DDFII)
 			shiftR(0, waux, Nw);
-			y[i] = double_direct_form_2_MSP430(waux, x[i], ds.a, ds.b, ds.a_size, ds.b_size);
+			y[i] = float_direct_form_2_MSP430(waux, x[i], ds.a, ds.b, ds.a_size, ds.b_size);
 		#endif
 
 		/* transposed direct form II realization */
 		#if (REALIZATION == TDFII || REALIZATION == TDDFII)
-			y[i] = double_transposed_direct_form_2_MSP430(waux, x[i], ds.a, ds.b, ds.a_size, ds.b_size);
+			y[i] = float_transposed_direct_form_2_MSP430(waux, x[i], ds.a, ds.b, ds.a_size, ds.b_size);
 		#endif
 
 		/* cascade direct form I realization (or delta cascade) */
@@ -85,7 +85,7 @@ int verify_timing_msp_430(void) {
 				xptr = &xaux[j];
 				yptr = &yaux[j];
 				shiftL(xk, xptr, 3);
-				y[i] = double_direct_form_1_MSP430(yptr, xptr, aptr, bptr, 3, 3);
+				y[i] = float_direct_form_1_MSP430(yptr, xptr, aptr, bptr, 3, 3);
 				shiftL(y[i], yptr, 3);
 				xk = y[i];
 			}
@@ -100,7 +100,7 @@ int verify_timing_msp_430(void) {
 				bptr = &b_cascade[j];
 				wptr = &waux[j];
 				shiftR(0, wptr, 3);
-				y[i] = double_direct_form_2_MSP430(wptr, xk, aptr, bptr, 3, 3);
+				y[i] = float_direct_form_2_MSP430(wptr, xk, aptr, bptr, 3, 3);
 				xk = y[i];
 			}
 		#endif
@@ -113,7 +113,7 @@ int verify_timing_msp_430(void) {
 				aptr = &a_cascade[j];
 				bptr = &b_cascade[j];
 				wptr = &waux[j];
-				y[i] = double_transposed_direct_form_2_MSP430(wptr, xk, aptr, bptr, 3, 3);
+				y[i] = float_transposed_direct_form_2_MSP430(wptr, xk, aptr, bptr, 3, 3);
 				xk = y[i];
 			}
 		#endif

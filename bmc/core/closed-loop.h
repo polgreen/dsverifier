@@ -25,10 +25,10 @@
  * The arrays must be in the crescent degree order (e.g.: a0*1+a_1*x^1+a2*x^3...)
  * Here is calculated the coefficients of the global transfer function of system with series compensation
  */
-void ft_closedloop_series(double c_num[], int Nc_num, double c_den[], int Nc_den, double model_num[], int Nmodel_num, double model_den[], int Nmodel_den, double ans_num[], int Nans_num, double ans_den[], int Nans_den){
+void ft_closedloop_series(float c_num[], int Nc_num, float c_den[], int Nc_den, float model_num[], int Nmodel_num, float model_den[], int Nmodel_den, float ans_num[], int Nans_num, float ans_den[], int Nans_den){
 	Nans_num = Nc_num + Nmodel_num - 1;
 	Nans_den = Nc_den + Nmodel_den - 1 ;
-	double den_mult [Nans_den];
+	float den_mult [Nans_den];
 	poly_mult(c_num, Nc_num, model_num, Nmodel_num, ans_num, Nans_num);
 	poly_mult(c_den, Nc_den, model_den, Nmodel_den, den_mult, Nans_den );
 	poly_sum(ans_num, Nans_num , den_mult, Nans_den , ans_den, Nans_den);
@@ -39,11 +39,11 @@ void ft_closedloop_series(double c_num[], int Nc_num, double c_den[], int Nc_den
  * The arrays must be in the crescent degree order (e.g.: a0*1+a_1*x^1+a2*x^3...)
  * Here is calculated the coefficients of the global transfer function of system with series compensation
  */
-void ft_closedloop_sensitivity(double c_num[], int Nc_num, double c_den[], int Nc_den, double model_num[], int Nmodel_num, double model_den[], int Nmodel_den, double ans_num[], int Nans_num, double ans_den[], int Nans_den){
+void ft_closedloop_sensitivity(float c_num[], int Nc_num, float c_den[], int Nc_den, float model_num[], int Nmodel_num, float model_den[], int Nmodel_den, float ans_num[], int Nans_num, float ans_den[], int Nans_den){
 	int Nans_num_p = Nc_num + Nmodel_num-1;
 	Nans_den = Nc_den + Nmodel_den-1;
 	Nans_num = Nc_den + Nmodel_den-1;
-	double num_mult [Nans_num_p];
+	float num_mult [Nans_num_p];
 	poly_mult(c_den, Nc_den, model_den, Nmodel_den, ans_num, Nans_num);
 	poly_mult(c_num, Nc_num, model_num, Nmodel_num, num_mult, Nans_num_p);
 	poly_sum(ans_num, Nans_num, num_mult, Nans_num_p, ans_den, Nans_den);
@@ -54,12 +54,12 @@ void ft_closedloop_sensitivity(double c_num[], int Nc_num, double c_den[], int N
  * The arrays must be in the crescent degree order (e.g.: a0*1+a_1*x^1+a2*x^3...)
  * Here is calculated the coefficients of the global transfer function of system with series feedback
  */
-void ft_closedloop_feedback(double c_num[], int Nc_num, double c_den[], int Nc_den, double model_num[], int Nmodel_num, double model_den[], int Nmodel_den, double ans_num[], int Nans_num, double ans_den[], int Nans_den){
+void ft_closedloop_feedback(float c_num[], int Nc_num, float c_den[], int Nc_den, float model_num[], int Nmodel_num, float model_den[], int Nmodel_den, float ans_num[], int Nans_num, float ans_den[], int Nans_den){
 	Nans_num = Nc_den + Nmodel_num - 1;
 	Nans_den = Nc_den + Nmodel_den - 1;
 	int Nnum_mult = Nc_num + Nmodel_num - 1;
-	double den_mult [Nans_den];
-	double num_mult [Nnum_mult];
+	float den_mult [Nans_den];
+	float num_mult [Nnum_mult];
 	poly_mult(c_num, Nc_num, model_num, Nmodel_num, num_mult, Nnum_mult);
 	poly_mult(c_den, Nc_den, model_den, Nmodel_den, den_mult, Nans_den);
 	poly_sum(num_mult, Nnum_mult, den_mult, Nans_den, ans_den, Nans_den);
@@ -67,15 +67,15 @@ void ft_closedloop_feedback(double c_num[], int Nc_num, double c_den[], int Nc_d
 }
 
 /** check the stability of system using jury criteria */
-int check_stability_closedloop(double a[], int n, double plant_num[], int p_num_size, double plant_den[], int p_den_size){
+int check_stability_closedloop(float a[], int n, float plant_num[], int p_num_size, float plant_den[], int p_den_size){
    int columns = n;
-   double m[2 * n - 1][n];
+   float m[2 * n - 1][n];
    int i,j;
    int first_is_positive = 0;
-   double * p_num = plant_num;
-   double * p_den = plant_den;
+   float * p_num = plant_num;
+   float * p_den = plant_den;
    /* check the first constraint condition F(1) > 0 */
-   double sum = 0;
+   float sum = 0;
    for (i=0; i < n; i++){
 	   sum += a[i];
    }

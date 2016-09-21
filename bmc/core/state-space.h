@@ -20,10 +20,10 @@ extern int nStates;
 extern int nInputs;
 extern int nOutputs;
 
-double double_state_space_representation(void){
+float float_state_space_representation(void){
 
-	double result1[LIMIT][LIMIT];
-	double result2[LIMIT][LIMIT];
+	float result1[LIMIT][LIMIT];
+	float result2[LIMIT][LIMIT];
 
 	int i, j;
 	for(i=0; i<LIMIT;i++){
@@ -33,29 +33,29 @@ double double_state_space_representation(void){
 		}
 	}
 
-	double_matrix_multiplication(nOutputs,nStates,nStates,1,_controller.C,_controller.states,result1);
-	double_matrix_multiplication(nOutputs,nInputs,nInputs,1,_controller.D,_controller.inputs,result2);
+	float_matrix_multiplication(nOutputs,nStates,nStates,1,_controller.C,_controller.states,result1);
+	float_matrix_multiplication(nOutputs,nInputs,nInputs,1,_controller.D,_controller.inputs,result2);
 
-	double_add_matrix(nOutputs,
+	float_add_matrix(nOutputs,
 			1,
 			result1,
 			result2,
 			_controller.outputs);
 
 	for (i = 1; i < K_SIZE; i++) {
-		double_matrix_multiplication(nStates,nStates,nStates,1,_controller.A,_controller.states,result1);
-		double_matrix_multiplication(nStates,nInputs,nInputs,1,_controller.B,_controller.inputs,result2);
+		float_matrix_multiplication(nStates,nStates,nStates,1,_controller.A,_controller.states,result1);
+		float_matrix_multiplication(nStates,nInputs,nInputs,1,_controller.B,_controller.inputs,result2);
 
-		double_add_matrix(nStates,
+		float_add_matrix(nStates,
 				1,
 				result1,
 				result2,
 				_controller.states);
 
-		double_matrix_multiplication(nOutputs,nStates,nStates,1,_controller.C,_controller.states,result1);
-		double_matrix_multiplication(nOutputs,nInputs,nInputs,1,_controller.D,_controller.inputs,result2);
+		float_matrix_multiplication(nOutputs,nStates,nStates,1,_controller.C,_controller.states,result1);
+		float_matrix_multiplication(nOutputs,nInputs,nInputs,1,_controller.D,_controller.inputs,result2);
 
-		double_add_matrix(nOutputs,
+		float_add_matrix(nOutputs,
 				1,
 				result1,
 				result2,
@@ -64,7 +64,7 @@ double double_state_space_representation(void){
 	return _controller.outputs[0][0];
 }
 
-double fxp_state_space_representation(void){
+float fxp_state_space_representation(void){
 
 	fxp_t result1[LIMIT][LIMIT];
 	fxp_t result2[LIMIT][LIMIT];
@@ -129,43 +129,43 @@ double fxp_state_space_representation(void){
 
 	for(i=0; i<nStates;i++){
 		for(j=0; j<nStates;j++){
-			A_fpx[i][j]= fxp_double_to_fxp(_controller.A[i][j]);
+			A_fpx[i][j]= fxp_float_to_fxp(_controller.A[i][j]);
 		}
 	}
 
 	for(i=0; i<nStates;i++){
 		for(j=0; j<nInputs;j++){
-			B_fpx[i][j]= fxp_double_to_fxp(_controller.B[i][j]);
+			B_fpx[i][j]= fxp_float_to_fxp(_controller.B[i][j]);
 		}
 	}
 
 	for(i=0; i<nOutputs;i++){
 		for(j=0; j<nStates;j++){
-			C_fpx[i][j]= fxp_double_to_fxp(_controller.C[i][j]);
+			C_fpx[i][j]= fxp_float_to_fxp(_controller.C[i][j]);
 		}
 	}
 
 	for(i=0; i<nOutputs;i++){
 		for(j=0; j<nInputs;j++){
-			D_fpx[i][j]= fxp_double_to_fxp(_controller.D[i][j]);
+			D_fpx[i][j]= fxp_float_to_fxp(_controller.D[i][j]);
 		}
 	}
 
 	for(i=0; i<nStates;i++){
 		for(j=0; j<1;j++){
-			states_fpx[i][j]= fxp_double_to_fxp(_controller.states[i][j]);
+			states_fpx[i][j]= fxp_float_to_fxp(_controller.states[i][j]);
 		}
 	}
 
 	for(i=0; i<nInputs;i++){
 		for(j=0; j<1;j++){
-			inputs_fpx[i][j]= fxp_double_to_fxp(_controller.inputs[i][j]);
+			inputs_fpx[i][j]= fxp_float_to_fxp(_controller.inputs[i][j]);
 		}
 	}
 
 	for(i=0; i<nOutputs;i++){
 		for(j=0; j<1;j++){
-			outputs_fpx[i][j]= fxp_double_to_fxp(_controller.outputs[i][j]);
+			outputs_fpx[i][j]= fxp_float_to_fxp(_controller.outputs[i][j]);
 		}
 	}
 
@@ -200,13 +200,13 @@ double fxp_state_space_representation(void){
 
 	for(i=0; i<nStates;i++){
 		for(j=0; j<1;j++){
-			_controller.states[i][j]= fxp_to_double(states_fpx[i][j]);
+			_controller.states[i][j]= fxp_to_float(states_fpx[i][j]);
 		}
 	}
 
 	for(i=0; i<nOutputs;i++){
 		for(j=0; j<1;j++){
-			_controller.outputs[i][j]= fxp_to_double(outputs_fpx[i][j]);
+			_controller.outputs[i][j]= fxp_to_float(outputs_fpx[i][j]);
 		}
 	}
 

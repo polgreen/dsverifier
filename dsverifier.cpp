@@ -80,8 +80,8 @@ void __DSVERIFIER_assert(_Bool expression)
 /* eigen dependencies */
 #include <Eigen/Eigenvalues>
 #include <unsupported/Eigen/Polynomials>
-typedef Eigen::PolynomialSolver<double, Eigen::Dynamic>::RootType RootType;
-typedef Eigen::PolynomialSolver<double, Eigen::Dynamic>::RootsType RootsType;
+typedef Eigen::PolynomialSolver<float, Eigen::Dynamic>::RootType RootType;
+typedef Eigen::PolynomialSolver<float, Eigen::Dynamic>::RootsType RootsType;
 
 /* boost dependencies */
 #include <boost/algorithm/string.hpp>
@@ -116,7 +116,7 @@ bool stateSpaceVerification = false;
 bool closedloop = false;
 bool translate = false;
 digital_system_state_space _controller;
-double desired_quantisation_limit = 0.0;
+float desired_quantisation_limit = 0.0;
 bool show_counterexample_data = false;
 
 /*******************************************************************\
@@ -842,7 +842,7 @@ std::string prepare_bmc_command_line()
 	}
 	else if (desired_bmc == "CBMC")
 	{
-		command_line =  model_checker_path + "/cbmc " + desired_filename + " --fixedbv --stop-on-fail -DBMC=CBMC -I " + bmc_path;
+		command_line =  model_checker_path + "/cbmc " + desired_filename + " --stop-on-fail -DBMC=CBMC -I " + bmc_path;
 	}
 	if (desired_function.size() > 0)
 	{
@@ -905,7 +905,7 @@ std::string prepare_bmc_command_line_ss()
 	}
 	else if (desired_bmc == "CBMC")
 	{
-		command_line = "cbmc --fixedbv --stop-on-fail input.c -DBMC=CBMC";
+		command_line = "cbmc --stop-on-fail input.c -DBMC=CBMC";
 	}
 	if (desired_solver.size() > 0)
 	{
@@ -964,7 +964,7 @@ Function: cplus_print_array_elements
 
 \*******************************************************************/
 
-void cplus_print_array_elements(const char * name, double * v, int n)
+void cplus_print_array_elements(const char * name, float * v, int n)
 {
 	printf("%s = {", name);
 	int i;
@@ -986,7 +986,7 @@ Function: cplus_print_array_elements_ignoring_empty
 
 \*******************************************************************/
 
-void cplus_print_array_elements_ignoring_empty(const char * name, double * v, int n)
+void cplus_print_array_elements_ignoring_empty(const char * name, float * v, int n)
 {
 	if (n > 0)
 	{
@@ -1025,14 +1025,14 @@ Function: extract_regexp_data_for_vector
 
 \*******************************************************************/
 
-void extract_regexp_data_for_vector(std::string src, std::regex & regexp, std::vector<double> & vector, unsigned int & factor)
+void extract_regexp_data_for_vector(std::string src, std::regex & regexp, std::vector<float> & vector, unsigned int & factor)
 {
 	std::sregex_iterator next(src.begin(), src.end(), regexp);
 	std::sregex_iterator end;
 	while (next != end)
 	{
 		std::smatch match = *next;
-		double value = (double) get_fxp_value(match.str()) / (double) factor;
+		float value = (float) get_fxp_value(match.str()) / (float) factor;
 		vector.push_back(value);
 		next++;
 	}
@@ -1052,11 +1052,11 @@ Function: print_counterexample_data
 
 void print_counterexample_data(std::string counterexample)
 {
-	std::vector<double> numerator;
-	std::vector<double> denominator;
-	std::vector<double> inputs;
-	std::vector<double> outputs;
-	std::vector<double> initial_states;
+	std::vector<float> numerator;
+	std::vector<float> denominator;
+	std::vector<float> inputs;
+	std::vector<float> outputs;
+	std::vector<float> initial_states;
 	unsigned int factor = pow(2, impl.frac_bits);
 
 	std::size_t verification_failed = counterexample.find("VERIFICATION FAILED");
@@ -1135,19 +1135,20 @@ Function: get_roots_from_polynomial
 
 \*******************************************************************/
 
-int get_roots_from_polynomial(double polynomial[], int poly_size, std::vector<RootType> & roots)
+int get_roots_from_polynomial(float polynomial[], int poly_size, std::vector<RootType> & roots)
 {
-
+	assert(0);
+#if 0
 	unsigned int size = poly_size;
 
 	/* coefficients */
-	std::vector<double> coefficients_vector;
+	std::vector<float> coefficients_vector;
 	for (int i=0; i< poly_size; i++){
 		coefficients_vector.push_back(polynomial[i]);
 	}
 
 	/* remove leading zeros */
-	std::vector<double>::iterator it=coefficients_vector.begin();
+	std::vector<float>::iterator it=coefficients_vector.begin();
 	while(it != coefficients_vector.end())
 	{
 		if(*it != 0.0)
@@ -1180,7 +1181,7 @@ int get_roots_from_polynomial(double polynomial[], int poly_size, std::vector<Ro
 		}
 
 		/* eigen solver object */
-		Eigen::PolynomialSolver<double, Eigen::Dynamic> solver;
+		Eigen::PolynomialSolver<float, Eigen::Dynamic> solver;
 
 		/* solve denominator using QR decomposition */
 		solver.compute(coefficients);
@@ -1194,7 +1195,7 @@ int get_roots_from_polynomial(double polynomial[], int poly_size, std::vector<Ro
 	}
 	else if (coefficients_vector.size() == 2)
 	{
-		double root = - coefficients_vector.at(1) / coefficients_vector.at(0);
+		float root = - coefficients_vector.at(1) / coefficients_vector.at(0);
 		roots.push_back(root);
 
 	}
@@ -1202,7 +1203,7 @@ int get_roots_from_polynomial(double polynomial[], int poly_size, std::vector<Ro
 	{
 		/* nothing to do */
 	}
-
+#endif
 	return 0;
 }
 
@@ -1224,7 +1225,7 @@ bool check_delta_stability_margin(std::vector<RootType> roots)
 	bool stable = true;
 	for(unsigned int i=0; i<roots.size(); i++)
 	{
-		std::complex<double> eig = roots.at(i);
+		std::complex<float> eig = roots.at(i);
 		eig.real(eig.real() * impl.delta);
 		eig.imag(eig.imag() * impl.delta);
 		eig.real(eig.real() + 1);
@@ -1255,7 +1256,7 @@ bool check_shift_stability_margin(std::vector<RootType> roots)
 	bool stable = true;
 	for(unsigned int i=0; i<roots.size(); i++)
 	{
-		std::complex<double> eig = roots.at(i);
+		std::complex<float> eig = roots.at(i);
 		if ((std::abs(eig) < 1) == false)
 		{
 			stable = false;
@@ -1385,11 +1386,11 @@ void check_stability_shift_domain_using_jury()
 {
 	show_implementation_parameters();
 	std::cout << std::endl;
-	double sa_fxp[ds.a_size];
+	float sa_fxp[ds.a_size];
 	cplus_print_array_elements("original denominator", ds.a, ds.a_size);
 	fxp_t a_fxp[ds.a_size];
-	fxp_double_to_fxp_array(ds.a, a_fxp, ds.a_size);
-	fxp_to_double_array(sa_fxp, a_fxp, ds.a_size);
+	fxp_float_to_fxp_array(ds.a, a_fxp, ds.a_size);
+	fxp_to_float_array(sa_fxp, a_fxp, ds.a_size);
 	cplus_print_array_elements("quantized denominator", sa_fxp, ds.a_size);
 	bool is_stable = check_stability(sa_fxp, ds.a_size);
 	if (is_stable)
@@ -1418,11 +1419,11 @@ void check_minimum_phase_shift_domain_using_jury()
 {
 	show_implementation_parameters();
 	std::cout << std::endl;
-	double sb_fxp[ds.b_size];
+	float sb_fxp[ds.b_size];
 	cplus_print_array_elements("original numerator", ds.b, ds.b_size);
 	fxp_t b_fxp[ds.b_size];
-	fxp_double_to_fxp_array(ds.b, b_fxp, ds.b_size);
-	fxp_to_double_array(sb_fxp, b_fxp, ds.b_size);
+	fxp_float_to_fxp_array(ds.b, b_fxp, ds.b_size);
+	fxp_to_float_array(sb_fxp, b_fxp, ds.b_size);
 	cplus_print_array_elements("quantized denominator", sb_fxp, ds.b_size);
 	bool is_stable = check_stability(sb_fxp, ds.b_size);
 	if (is_stable)
@@ -1451,11 +1452,11 @@ void check_stability_shift_domain_using_eigen()
 {
 	show_implementation_parameters();
 	std::cout << std::endl;
-	double sa_fxp[ds.a_size];
+	float sa_fxp[ds.a_size];
 	cplus_print_array_elements("original denominator", ds.a, ds.a_size);
 	fxp_t a_fxp[ds.a_size];
-	fxp_double_to_fxp_array(ds.a, a_fxp, ds.a_size);
-	fxp_to_double_array(sa_fxp, a_fxp, ds.a_size);
+	fxp_float_to_fxp_array(ds.a, a_fxp, ds.a_size);
+	fxp_to_float_array(sa_fxp, a_fxp, ds.a_size);
 	cplus_print_array_elements("quantized denominator", sa_fxp, ds.a_size);
 	std::vector<RootType> poly_roots;
 	get_roots_from_polynomial(sa_fxp, ds.a_size, poly_roots);
@@ -1486,11 +1487,11 @@ void check_minimum_phase_shift_domain()
 {
 	show_implementation_parameters();
 	std::cout << std::endl;
-	double sb_fxp[ds.b_size];
+	float sb_fxp[ds.b_size];
 	cplus_print_array_elements("original numerator", ds.b, ds.b_size);
 	fxp_t b_fxp[ds.b_size];
-	fxp_double_to_fxp_array(ds.b, b_fxp, ds.b_size);
-	fxp_to_double_array(sb_fxp, b_fxp, ds.b_size);
+	fxp_float_to_fxp_array(ds.b, b_fxp, ds.b_size);
+	fxp_to_float_array(sb_fxp, b_fxp, ds.b_size);
 	cplus_print_array_elements("quantized numerator", sb_fxp, ds.b_size);
 	bool is_stable = check_stability(sb_fxp, ds.b_size);
 	if (is_stable)
@@ -1519,18 +1520,18 @@ void check_stability_delta_domain()
 {
 	show_implementation_parameters();
 	std::cout << std::endl;
-	double db[ds.b_size];
-	double da[ds.a_size];
+	float db[ds.b_size];
+	float da[ds.a_size];
 	fxp_t a_fxp[ds.a_size];
 	cplus_print_array_elements("original denominator", ds.a, ds.a_size);
 	cplus_print_array_elements("original numerator", ds.b, ds.b_size);
-	fxp_double_to_fxp_array(ds.a, a_fxp, ds.a_size);
+	fxp_float_to_fxp_array(ds.a, a_fxp, ds.a_size);
 	get_delta_transfer_function_with_base(ds.b, db, ds.b_size, ds.a, da, ds.a_size, impl.delta);
 	cplus_print_array_elements("delta denominator", da, ds.a_size);
 	cplus_print_array_elements("delta numerator", db, ds.b_size);
 	fxp_t da_fxp[ds.a_size];
 	try{
-		fxp_double_to_fxp_array(da, da_fxp, ds.a_size);
+		fxp_float_to_fxp_array(da, da_fxp, ds.a_size);
 	} catch (int e){
 		std::cout << "an fixed-point arithmetic overflow occurs after delta transformation" << std::endl;
 		show_verification_failed();
@@ -1545,8 +1546,8 @@ void check_stability_delta_domain()
 		show_verification_error();
 		exit(1);
 	}
-	double da_qtz[ds.a_size];
-	fxp_to_double_array(da_qtz, da_fxp, ds.a_size);
+	float da_qtz[ds.a_size];
+	fxp_to_float_array(da_qtz, da_fxp, ds.a_size);
 	cplus_print_array_elements("quantized delta denominator", da_qtz, ds.a_size);
 	std::vector<RootType> poly_roots;
 	get_roots_from_polynomial(da_qtz, ds.a_size, poly_roots);
@@ -1602,15 +1603,15 @@ void check_minimum_phase_delta_domain()
 {
 	show_implementation_parameters();
 	std::cout << std::endl;
-	double db[ds.b_size];
-	double da[ds.a_size];
+	float db[ds.b_size];
+	float da[ds.a_size];
 	cplus_print_array_elements("original numerator", ds.b, ds.b_size);
 	cplus_print_array_elements("original denominator", ds.a, ds.a_size);
 	get_delta_transfer_function_with_base(ds.b, db, ds.b_size, ds.a, da, ds.a_size, impl.delta);
 	cplus_print_array_elements("delta numerator", db, ds.b_size);
 	cplus_print_array_elements("delta denominator", da, ds.a_size);
 	fxp_t db_fxp[ds.b_size];
-	fxp_double_to_fxp_array(db, db_fxp, ds.b_size);
+	fxp_float_to_fxp_array(db, db_fxp, ds.b_size);
 	if ((db[0] != 0) && (db_fxp[0] == 0))
 	{
 		std::cout << std::endl;
@@ -1620,8 +1621,8 @@ void check_minimum_phase_delta_domain()
 		show_verification_error();
 		exit(1);
 	}
-	double db_qtz[ds.b_size];
-	fxp_to_double_array(db_qtz, db_fxp, ds.b_size);
+	float db_qtz[ds.b_size];
+	fxp_to_float_array(db_qtz, db_fxp, ds.b_size);
 	cplus_print_array_elements("quantized delta numerator", db_qtz, ds.b_size);
 	std::vector<RootType> poly_roots;
 	get_roots_from_polynomial(db_qtz, ds.b_size, poly_roots);
@@ -1657,17 +1658,17 @@ void check_state_space_stability()
 	{
 		for(j=0; j<_controller.nStates;j++)
 		{
-			matrixA(i,j) = _controller.A[i][j]; //fxp_double_to_fxp(A[i][j]);
+			matrixA(i,j) = _controller.A[i][j]; //fxp_float_to_fxp(A[i][j]);
 		}
 	}
 
-	std::complex< double > lambda;
-	std::complex< double > margem(1,0);
+	std::complex< float > lambda;
+	std::complex< float > margem(1,0);
 	for(i = 0; i < (matrixA.count() / 2); i++ )
 	{
 		lambda = matrixA.eigenvalues()[i];
 		//std::cout << "abs(lambda): " << std::abs(lambda) << std::endl;
-		double v = std::abs(lambda);
+		float v = std::abs(lambda);
 		if( v >= 1 )
 		{
 			std::cout << "VERIFICATION FAILED" << std::endl; //unstable
@@ -1983,7 +1984,7 @@ void state_space_parser()
 	verification_file.append(std::to_string(_controller.nInputs));
 	verification_file.append(";\n int nOutputs = ");
 	verification_file.append(std::to_string(_controller.nOutputs));
-	verification_file.append(";\n double error_limit = ");
+	verification_file.append(";\n float error_limit = ");
 	cf_value_precision  << std::fixed << desired_quantisation_limit;
 	verification_file.append(cf_value_precision.str());
 	verification_file.append(";\n void initials(){\n");
@@ -2093,16 +2094,16 @@ Function: closed_loop
 
 void closed_loop(){
 
-	double result1[LIMIT][LIMIT];
+	float result1[LIMIT][LIMIT];
 
 	int i, j, k;
 	for(i=0; i<LIMIT;i++)
 		for(j=0; j<LIMIT;j++)
 			result1[i][j]=0;
 
-	double_matrix_multiplication(_controller.nStates,_controller.nInputs,1,_controller.nStates,_controller.B,_controller.K,result1);
+	float_matrix_multiplication(_controller.nStates,_controller.nInputs,1,_controller.nStates,_controller.B,_controller.K,result1);
 
-	double_sub_matrix(_controller.nStates,
+	float_sub_matrix(_controller.nStates,
 			_controller.nStates,
 			_controller.A,
 			result1,
@@ -2112,9 +2113,9 @@ void closed_loop(){
 		for(j=0; j<LIMIT;j++)
 			result1[i][j]=0;
 
-	double_matrix_multiplication(_controller.nOutputs,_controller.nInputs,1,_controller.nStates,_controller.D,_controller.K,result1);
+	float_matrix_multiplication(_controller.nOutputs,_controller.nInputs,1,_controller.nStates,_controller.D,_controller.K,result1);
 
-	double_sub_matrix(_controller.nOutputs,
+	float_sub_matrix(_controller.nOutputs,
 			_controller.nStates,
 			_controller.C,
 			result1,

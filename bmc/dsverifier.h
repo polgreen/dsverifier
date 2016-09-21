@@ -55,7 +55,7 @@ void validation();
 void call_verification_task(void * verification_task);
 void call_closedloop_verification_task(void * closedloop_verification_task);
 float nondet_float();
-double nondet_double();
+float nondet_float();
 
 int main(){
 
@@ -225,7 +225,7 @@ void validation(){
 				printf("***************************\n");
 				__DSVERIFIER_assert(0);
 			}
-			hw.cycle = ((double) 1.0 / hw.clock);
+			hw.cycle = ((float) 1.0 / hw.clock);
 			if (hw.cycle < 0){
 				printf("\n\n*********************************************\n");
 				printf("* The cycle time could not be representable *\n");
@@ -258,11 +258,11 @@ void call_verification_task(void * verification_task){
 	int i=0;
 	for(i=0; i<ds.b_size; i++){
 		if (ds.b_uncertainty[i] > 0){
-			double factor = ((ds.b[i] * ds.b_uncertainty[i]) / 100);
+			float factor = ((ds.b[i] * ds.b_uncertainty[i]) / 100);
 			factor = factor < 0 ? factor * (-1) : factor;
 
-			double min = ds.b[i] - factor;
-			double max = ds.b[i] + factor;
+			float min = ds.b[i] - factor;
+			float max = ds.b[i] + factor;
 
 			/* Eliminate redundant executions  */
 			if ((factor == 0) && (base_case_executed == 1)){
@@ -271,7 +271,7 @@ void call_verification_task(void * verification_task){
 				base_case_executed = 1;
 			}
 
-			ds.b[i] = nondet_double();
+			ds.b[i] = nondet_float();
 			__DSVERIFIER_assume((ds.b[i] >= min) && (ds.b[i] <= max));
 		}
 	}
@@ -279,11 +279,11 @@ void call_verification_task(void * verification_task){
 	 /* considering uncertainty for denominator coefficients */
 	for(i=0; i<ds.a_size; i++){
 		if (ds.a_uncertainty[i] > 0){
-			double factor = ((ds.a[i] * ds.a_uncertainty[i]) / 100);
+			float factor = ((ds.a[i] * ds.a_uncertainty[i]) / 100);
 			factor = factor < 0 ? factor * (-1) : factor;
 
-			double min = ds.a[i] - factor;
-			double max = ds.a[i] + factor;
+			float min = ds.a[i] - factor;
+			float max = ds.a[i] + factor;
 
 			/* Eliminate redundant executions  */
 			if ((factor == 0) && (base_case_executed == 1)){
@@ -292,7 +292,7 @@ void call_verification_task(void * verification_task){
 				base_case_executed = 1;
 			}
 
-			ds.a[i] = nondet_double();
+			ds.a[i] = nondet_float();
 			__DSVERIFIER_assume((ds.a[i] >= min) && (ds.a[i] <= max));
 		}
 	}
@@ -309,10 +309,10 @@ void call_closedloop_verification_task(void * closedloop_verification_task){
 	int i=0;
 	for(i=0; i<plant.b_size; i++){
 		if (plant.b_uncertainty[i] > 0){
-			double factor = ((plant.b[i] * plant.b_uncertainty[i]) / 100);
+			float factor = ((plant.b[i] * plant.b_uncertainty[i]) / 100);
 			factor = factor < 0 ? factor * (-1) : factor;
-			double min = plant.b[i] - factor;
-			double max = plant.b[i] + factor;
+			float min = plant.b[i] - factor;
+			float max = plant.b[i] + factor;
 
 			/* Eliminate redundant executions  */
 			if ((factor == 0) && (base_case_executed == 1)){
@@ -322,10 +322,10 @@ void call_closedloop_verification_task(void * closedloop_verification_task){
 			}
 
 			#if (BMC == ESBMC)
-				plant.b[i] = nondet_double();
+				plant.b[i] = nondet_float();
 				__DSVERIFIER_assume((plant.b[i] >= min) && (plant.b[i] <= max));
 			#elif (BMC == CBMC)
-				plant_cbmc.b[i] = nondet_double();
+				plant_cbmc.b[i] = nondet_float();
 				__DSVERIFIER_assume((plant_cbmc.b[i] >= min) && (plant_cbmc.b[i] <= max));
 			#endif
 		}else{
@@ -338,11 +338,11 @@ void call_closedloop_verification_task(void * closedloop_verification_task){
 	/* considering uncertainty for denominator coefficients */
 	for(i=0; i<plant.a_size; i++){
 		if (plant.a_uncertainty[i] > 0){
-			double factor = ((plant.a[i] * plant.a_uncertainty[i]) / 100);
+			float factor = ((plant.a[i] * plant.a_uncertainty[i]) / 100);
 			factor = factor < 0 ? factor * (-1) : factor;
 
-			double min = plant.a[i] - factor;
-			double max = plant.a[i] + factor;
+			float min = plant.a[i] - factor;
+			float max = plant.a[i] + factor;
 
 			/* eliminate redundant executions  */
 			if ((factor == 0) && (base_case_executed == 1)){
@@ -352,10 +352,10 @@ void call_closedloop_verification_task(void * closedloop_verification_task){
 			}
 
 			#if (BMC == ESBMC)
-				plant.a[i] = nondet_double();
+				plant.a[i] = nondet_float();
 				__DSVERIFIER_assume((plant.a[i] >= min) && (plant.a[i] <= max));
 			#elif (BMC == CBMC)
-				plant_cbmc.a[i] = nondet_double();
+				plant_cbmc.a[i] = nondet_float();
 				__DSVERIFIER_assume((plant_cbmc.a[i] >= min) && (plant_cbmc.a[i] <= max));
 			#endif
 		}else{

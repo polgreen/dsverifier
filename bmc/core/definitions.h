@@ -134,26 +134,26 @@ int rounding_mode = ROUNDING;
 
 /* digital system in transfer function structure */
 typedef struct {
-  double a[100];
+  float a[100];
   int a_size;
-  double b[100];
+  float b[100];
   int b_size;
-  double sample_time;
-  double a_uncertainty[100];
-  double b_uncertainty[100];
+  float sample_time;
+  float a_uncertainty[100];
+  float b_uncertainty[100];
 } digital_system;
 
 /** digital system in space state structure */
 
 typedef struct {
-    double A[LIMIT][LIMIT];
-    double B[LIMIT][LIMIT];
-    double C[LIMIT][LIMIT];
-    double D[LIMIT][LIMIT];
-    double states[LIMIT][LIMIT];
-    double outputs[LIMIT][LIMIT];
-    double inputs[LIMIT][LIMIT];
-    double K[LIMIT][LIMIT];
+    float A[LIMIT][LIMIT];
+    float B[LIMIT][LIMIT];
+    float C[LIMIT][LIMIT];
+    float D[LIMIT][LIMIT];
+    float states[LIMIT][LIMIT];
+    float outputs[LIMIT][LIMIT];
+    float inputs[LIMIT][LIMIT];
+    float K[LIMIT][LIMIT];
     unsigned int nStates;
     unsigned int nInputs;
     unsigned int nOutputs;
@@ -163,12 +163,12 @@ typedef struct {
 typedef struct {
    int int_bits;
    int frac_bits;
-   double max;
-   double min;
+   float max;
+   float min;
    int default_realization;
-   double delta;
+   float delta;
    int scale;
-   double max_error;
+   float max_error;
 } implementation;
 
 /** assembly structure */
@@ -207,6 +207,6 @@ typedef struct {
 typedef struct {
    long clock;
    int device;
-   double cycle;
+   float cycle;
    instructions assembly;
 } hardware;

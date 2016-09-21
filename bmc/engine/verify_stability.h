@@ -29,14 +29,14 @@ int verify_stability(void){
 	#if ((REALIZATION == DFI) || (REALIZATION == DFII) || (REALIZATION == TDFII))
 		fxp_t a_fxp[ds.a_size];
 		/* quantize the array using fxp */
-		fxp_double_to_fxp_array(ds.a, a_fxp, ds.a_size);
-		double _a[ds.a_size];
-		/* get the quantized value in double format */
-		fxp_to_double_array(_a, a_fxp, ds.a_size);
+		fxp_float_to_fxp_array(ds.a, a_fxp, ds.a_size);
+		float _a[ds.a_size];
+		/* get the quantized value in float format */
+		fxp_to_float_array(_a, a_fxp, ds.a_size);
 		/* check stability using jury criteria */
 		assert(check_stability(_a, ds.a_size));
 	#elif ((REALIZATION == DDFI) || (REALIZATION == DDFII) || (REALIZATION == TDDFII))
-		double da[ds.a_size];
+		float da[ds.a_size];
 		/* generate delta coefficients using a instrinsic function */
 		generate_delta_coefficients(ds.a, da, ds.a_size, impl.delta);
 		/* check stability using delta domain (intrinsic function) */
@@ -45,20 +45,20 @@ int verify_stability(void){
 		assert(0);
 		exit(1);
 	#elif ((REALIZATION == CDFI) || (REALIZATION == CDFII)|| (REALIZATION == CTDFII))
-		double a_cascade[100];
+		float a_cascade[100];
 		int a_cascade_size;
-		double b_cascade[100];
+		float b_cascade[100];
 		int b_cascade_size;
 		/* generate cascade values using a intrinsic function */
 		__DSVERIFIER_generate_cascade_controllers(&ds, a_cascade, a_cascade_size, b_cascade, b_cascade_size);
 		fxp_t a_cascade_fxp[100];
 		/* quantize cascade using fxp library */
-		fxp_double_to_fxp_array(a_cascade, a_cascade_fxp, a_cascade_size);
-		double a_cascade_qtz[100];
+		fxp_float_to_fxp_array(a_cascade, a_cascade_fxp, a_cascade_size);
+		float a_cascade_qtz[100];
 		/* get quantized values for denominator */
-		fxp_to_double_array(a_cascade_qtz, a_cascade_fxp, a_cascade_size);
+		fxp_to_float_array(a_cascade_qtz, a_cascade_fxp, a_cascade_size);
 		int i=0;
-		double current_cascade[3];
+		float current_cascade[3];
 		for( i=0; i<a_cascade_size; i=i+3 ){
 			/* first element zero (remove left zeros) */
 			if ((i==0) && (a_cascade_qtz[i] == 0)){
@@ -73,7 +73,7 @@ int verify_stability(void){
 			}
 		}
 	#elif ((REALIZATION == CDDFI) || (REALIZATION == CDDFII) || (REALIZATION == CTDDFII))
-		double da_cascade[100];
+		float da_cascade[100];
 		/* generate delta coefficients using a instrinsic function */
 		__DSVERIFIER_generate_delta_coefficients(ds.a, da_cascade, impl.delta);
 		/* check stability using delta domain (intrinsic function) */

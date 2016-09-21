@@ -29,99 +29,99 @@ int verify_error_closedloop(void){
 	overflow_mode = WRAPAROUND;
 
 	/* generating closed loop for series or feedback */
-	double * c_num = controller.b;
+	float * c_num = controller.b;
 	int c_num_size = controller.b_size;
-	double * c_den = controller.a;
+	float * c_den = controller.a;
 	int c_den_size = controller.a_size;
 
 	/* quantizing controller coefficients */
 	fxp_t c_num_fxp[controller.b_size];
-	fxp_double_to_fxp_array(c_num, c_num_fxp, controller.b_size);
+	fxp_float_to_fxp_array(c_num, c_num_fxp, controller.b_size);
 	fxp_t c_den_fxp[controller.a_size];
-	fxp_double_to_fxp_array(c_den, c_den_fxp, controller.a_size);
+	fxp_float_to_fxp_array(c_den, c_den_fxp, controller.a_size);
 
 	/* getting quantized controller coefficients  */
-	double c_num_qtz[controller.b_size];
-	fxp_to_double_array(c_num_qtz, c_num_fxp, controller.b_size);
-	double c_den_qtz[controller.a_size];
-	fxp_to_double_array(c_den_qtz, c_den_fxp, controller.a_size);
+	float c_num_qtz[controller.b_size];
+	fxp_to_float_array(c_num_qtz, c_num_fxp, controller.b_size);
+	float c_den_qtz[controller.a_size];
+	fxp_to_float_array(c_den_qtz, c_den_fxp, controller.a_size);
 
 	/* getting plant coefficients */
 	#if (BMC == ESBMC)
-		double * p_num = plant.b;
+		float * p_num = plant.b;
 		int p_num_size = plant.b_size;
-		double * p_den = plant.a;
+		float * p_den = plant.a;
 		int p_den_size = plant.a_size;
 	#elif (BMC == CBMC)
-		double * p_num = plant_cbmc.b;
+		float * p_num = plant_cbmc.b;
 		int p_num_size = plant.b_size;
-		double * p_den = plant_cbmc.a;
+		float * p_den = plant_cbmc.a;
 		int p_den_size = plant.a_size;
 	#endif
 
-	double ans_num_double[100];
-	double ans_num_qtz[100];
+	float ans_num_float[100];
+	float ans_num_qtz[100];
 	int ans_num_size = controller.b_size + plant.b_size - 1;
-	double ans_den_qtz[100];
-	double ans_den_double[100];
+	float ans_den_qtz[100];
+	float ans_den_float[100];
 	int ans_den_size = controller.a_size + plant.a_size - 1;
 
 	#if (CONNECTION_MODE == SERIES)
 		ft_closedloop_series(c_num_qtz, c_num_size, c_den_qtz, c_den_size, p_num, p_num_size, p_den, p_den_size, ans_num_qtz, ans_num_size, ans_den_qtz, ans_den_size);
-		ft_closedloop_series(c_num, c_num_size, c_den, c_den_size, p_num, p_num_size, p_den, p_den_size, ans_num_double, ans_num_size, ans_den_double, ans_den_size);
+		ft_closedloop_series(c_num, c_num_size, c_den, c_den_size, p_num, p_num_size, p_den, p_den_size, ans_num_float, ans_num_size, ans_den_float, ans_den_size);
 	#elif (CONNECTION_MODE == FEEDBACK)
 		ft_closedloop_feedback(c_num_qtz, c_num_size, c_den_qtz, c_den_size, p_num, p_num_size, p_den, p_den_size, ans_num_qtz, ans_num_size, ans_den_qtz, ans_den_size);
-		ft_closedloop_feedback(c_num, c_num_size, c_den, c_den_size, p_num, p_num_size, p_den, p_den_size, ans_num_double, ans_num_size, ans_den_double, ans_den_size);
+		ft_closedloop_feedback(c_num, c_num_size, c_den, c_den_size, p_num, p_num_size, p_den, p_den_size, ans_num_float, ans_num_size, ans_den_float, ans_den_size);
 	#endif
 
 	int i;
-	double y_qtz[X_SIZE_VALUE];
-	double y_double[X_SIZE_VALUE];
-	double x_qtz[X_SIZE_VALUE];
-	double x_double[X_SIZE_VALUE];
-	double xaux_qtz[ans_num_size];
-	double xaux_double[ans_num_size];
+	float y_qtz[X_SIZE_VALUE];
+	float y_float[X_SIZE_VALUE];
+	float x_qtz[X_SIZE_VALUE];
+	float x_float[X_SIZE_VALUE];
+	float xaux_qtz[ans_num_size];
+	float xaux_float[ans_num_size];
 
 	/* prepare inputs (all possibles values in dynamical range) */
-	double xaux[ans_num_size];
-	double nondet_constant_input = nondet_double();
+	float xaux[ans_num_size];
+	float nondet_constant_input = nondet_float();
 	__DSVERIFIER_assume(nondet_constant_input >= impl.min && nondet_constant_input <= impl.max);
 	for (i = 0; i < X_SIZE_VALUE; ++i) {
 		x_qtz[i] = nondet_constant_input;
-		x_double[i] = nondet_constant_input;
+		x_float[i] = nondet_constant_input;
 		y_qtz[i] = 0;
-		y_double[i] = 0;
+		y_float[i] = 0;
 	}
 	for (i = 0; i < ans_num_size; ++i) {
 		xaux_qtz[i] = nondet_constant_input;
-		xaux_double[i] = nondet_constant_input;
+		xaux_float[i] = nondet_constant_input;
 	}
 
-	double yaux_qtz[ans_den_size];
-	double yaux_double[ans_den_size];
-	double y0_qtz[ans_den_size];
-	double y0_double[ans_den_size];
+	float yaux_qtz[ans_den_size];
+	float yaux_float[ans_den_size];
+	float y0_qtz[ans_den_size];
+	float y0_float[ans_den_size];
 
 	int Nw = ans_den_size > ans_num_size ? ans_den_size : ans_num_size;
-	double waux_qtz[Nw];
-	double waux_double[Nw];
-	double w0_qtz[Nw];
-	double w0_double[Nw];
+	float waux_qtz[Nw];
+	float waux_float[Nw];
+	float w0_qtz[Nw];
+	float w0_float[Nw];
 
 	#if (REALIZATION == DFI)
 		for (i = 0; i < ans_den_size; ++i) {
 			yaux_qtz[i] = 0;
-			yaux_double[i] = 0;
+			yaux_float[i] = 0;
 		}
 	#else
 		for (i = 0; i < Nw; ++i) {
 			waux_qtz[i] = 0;
-			waux_double[i] = 0;
+			waux_float[i] = 0;
 		}
 	#endif
 
-	double xk, temp;
-	double *aptr, *bptr, *xptr, *yptr, *wptr;
+	float xk, temp;
+	float *aptr, *bptr, *xptr, *yptr, *wptr;
 
 	int j;
 	for(i=0; i<X_SIZE_VALUE; ++i){
@@ -130,34 +130,34 @@ int verify_error_closedloop(void){
 		#if (REALIZATION == DFI)
 			/* realization with controller quantized */
 			shiftLDouble(x_qtz[i], xaux_qtz, ans_num_size);
-			y_qtz[i] = double_direct_form_1(yaux_qtz, xaux_qtz, ans_den_qtz, ans_num_qtz, ans_den_size, ans_num_size);
+			y_qtz[i] = float_direct_form_1(yaux_qtz, xaux_qtz, ans_den_qtz, ans_num_qtz, ans_den_size, ans_num_size);
 			shiftLDouble(y_qtz[i], yaux_qtz, ans_den_size);
 			/* realization with controller non quantized */
-			shiftLDouble(x_double[i], xaux_double, ans_num_size);
-			y_double[i] = double_direct_form_1(yaux_double, xaux_double, ans_den_double, ans_num_double, ans_den_size, ans_num_size);
-			shiftLDouble(y_double[i], yaux_double, ans_den_size);
+			shiftLDouble(x_float[i], xaux_float, ans_num_size);
+			y_float[i] = float_direct_form_1(yaux_float, xaux_float, ans_den_float, ans_num_float, ans_den_size, ans_num_size);
+			shiftLDouble(y_float[i], yaux_float, ans_den_size);
 		#endif
 
 		/* direct form II realization */
 		#if (REALIZATION == DFII)
 			/* realization with controller quantized */
-			shiftRDdouble(0, waux_qtz, Nw);
-			y_qtz[i] = double_direct_form_2(waux_qtz, x_qtz[i], ans_den_qtz, ans_num_qtz, ans_den_size, ans_num_size);
+			shiftRDfloat(0, waux_qtz, Nw);
+			y_qtz[i] = float_direct_form_2(waux_qtz, x_qtz[i], ans_den_qtz, ans_num_qtz, ans_den_size, ans_num_size);
 			/* realization with controller non quantized */
-			shiftRDdouble(0, waux_double, Nw);
-			y_double[i] = double_direct_form_2(waux_double, x_double[i], ans_den_double, ans_num_double, ans_den_size, ans_num_size);
+			shiftRDfloat(0, waux_float, Nw);
+			y_float[i] = float_direct_form_2(waux_float, x_float[i], ans_den_float, ans_num_float, ans_den_size, ans_num_size);
 		#endif
 
 		/* transposed direct form II realization */
 		#if (REALIZATION == TDFII)
 		  /* realization with controller quantized */
-			y_qtz[i] = double_transposed_direct_form_2(waux_qtz, x_qtz[i], ans_den_qtz, ans_num_qtz, ans_den_size, ans_num_size);
+			y_qtz[i] = float_transposed_direct_form_2(waux_qtz, x_qtz[i], ans_den_qtz, ans_num_qtz, ans_den_size, ans_num_size);
 			/* realization with controller non quantized */
-			y_double[i] = double_transposed_direct_form_2(waux_double, x_double[i], ans_den_double, ans_num_double, ans_den_size, ans_num_size);
+			y_float[i] = float_transposed_direct_form_2(waux_float, x_float[i], ans_den_float, ans_num_float, ans_den_size, ans_num_size);
 		#endif
 
 		/* error verification using a % setted by user */
-		double __quant_error = ((fxp_to_double(y_qtz[i]) - y_double[i])/y_double[i]) * 100;
+		float __quant_error = ((fxp_to_float(y_qtz[i]) - y_float[i])/y_float[i]) * 100;
 		__DSVERIFIER_assert(__quant_error < impl.max_error && __quant_error > (-impl.max_error));
 
 	}

@@ -21,12 +21,12 @@ extern int nOutputs;
 int verify_limit_cycle_state_space(void){
 
 	/* setting up variables */
-	double stateMatrix[LIMIT][LIMIT];
-	double outputMatrix[LIMIT][LIMIT];
-	double arrayLimitCycle[LIMIT];
+	float stateMatrix[LIMIT][LIMIT];
+	float outputMatrix[LIMIT][LIMIT];
+	float arrayLimitCycle[LIMIT];
 
-	double result1[LIMIT][LIMIT];
-	double result2[LIMIT][LIMIT];
+	float result1[LIMIT][LIMIT];
+	float result2[LIMIT][LIMIT];
 
 	int i, j, k;
 
@@ -41,10 +41,10 @@ int verify_limit_cycle_state_space(void){
 	}
 
 	/* first system iteration */
-	double_matrix_multiplication(nOutputs,nStates,nStates,1,_controller.C,_controller.states,result1);
-	double_matrix_multiplication(nOutputs,nInputs,nInputs,1,_controller.D,_controller.inputs,result2);
+	float_matrix_multiplication(nOutputs,nStates,nStates,1,_controller.C,_controller.states,result1);
+	float_matrix_multiplication(nOutputs,nInputs,nInputs,1,_controller.D,_controller.inputs,result2);
 
-	double_add_matrix(nOutputs,
+	float_add_matrix(nOutputs,
 			1,
 			result1,
 			result2,
@@ -54,19 +54,19 @@ int verify_limit_cycle_state_space(void){
 
 	/* remaining system iterations */
 	for (i = 1; i < K_SIZE; i++) {
-		double_matrix_multiplication(nStates,nStates,nStates,1,_controller.A,_controller.states,result1);
-		double_matrix_multiplication(nStates,nInputs,nInputs,1,_controller.B,_controller.inputs,result2);
+		float_matrix_multiplication(nStates,nStates,nStates,1,_controller.A,_controller.states,result1);
+		float_matrix_multiplication(nStates,nInputs,nInputs,1,_controller.B,_controller.inputs,result2);
 
-		double_add_matrix(nStates,
+		float_add_matrix(nStates,
 				1,
 				result1,
 				result2,
 				_controller.states);
 
-		double_matrix_multiplication(nOutputs,nStates,nStates,1,_controller.C,_controller.states,result1);
-		double_matrix_multiplication(nOutputs,nInputs,nInputs,1,_controller.D,_controller.inputs,result2);
+		float_matrix_multiplication(nOutputs,nStates,nStates,1,_controller.C,_controller.states,result1);
+		float_matrix_multiplication(nOutputs,nInputs,nInputs,1,_controller.D,_controller.inputs,result2);
 
-		double_add_matrix(nOutputs,
+		float_add_matrix(nOutputs,
 				1,
 				result1,
 				result2,
@@ -94,7 +94,7 @@ int verify_limit_cycle_state_space(void){
 		for(j=0; j<K_SIZE;j++){
 			arrayLimitCycle[j] = stateMatrix[i][j];
 		}
-		double_check_persistent_limit_cycle(arrayLimitCycle,K_SIZE);
+		float_check_persistent_limit_cycle(arrayLimitCycle,K_SIZE);
 	}
 
 	/* checking limit cycle for outputs */
@@ -102,7 +102,7 @@ int verify_limit_cycle_state_space(void){
 		for(j=0; j<K_SIZE;j++){
 			arrayLimitCycle[j] = outputMatrix[i][j];
 		}
-		double_check_persistent_limit_cycle(arrayLimitCycle,K_SIZE);
+		float_check_persistent_limit_cycle(arrayLimitCycle,K_SIZE);
 	}
 
 	assert(0);
@@ -122,52 +122,52 @@ int verify_limit_cycle(void){
 		fxp_t a_fxp[ds.a_size];
 		fxp_t b_fxp[ds.b_size];
 		/* quantize the denominator using fxp */
-		fxp_double_to_fxp_array(ds.a, a_fxp, ds.a_size);
+		fxp_float_to_fxp_array(ds.a, a_fxp, ds.a_size);
 		/* quantize the numerator using fxp */
-		fxp_double_to_fxp_array(ds.b, b_fxp, ds.b_size);
+		fxp_float_to_fxp_array(ds.b, b_fxp, ds.b_size);
 	#elif ((REALIZATION == DDFI)||(REALIZATION == DDFII)||(REALIZATION == TDDFII))
-		double da[ds.a_size];
-		double db[ds.b_size];
+		float da[ds.a_size];
+		float db[ds.b_size];
 		get_delta_transfer_function_with_base(ds.b, db, ds.b_size,ds.a, da, ds.a_size, impl.delta);
 		fxp_t a_fxp[ds.a_size];
 		fxp_t b_fxp[ds.b_size];
 		/* quantize delta denominators using fxp */
-		fxp_double_to_fxp_array(da, a_fxp, ds.a_size);
+		fxp_float_to_fxp_array(da, a_fxp, ds.a_size);
 		/* quantize delta numerator using fxp */
-		fxp_double_to_fxp_array(db, b_fxp, ds.b_size);
+		fxp_float_to_fxp_array(db, b_fxp, ds.b_size);
 	#elif ((REALIZATION == CDFI) || (REALIZATION == CDFII) || (REALIZATION == CTDFII))
-		double a_cascade[100];
+		float a_cascade[100];
 		int a_cascade_size;
-		double b_cascade[100];
+		float b_cascade[100];
 		int b_cascade_size;
 		/* generate cascade realization for digital system */
 		__DSVERIFIER_generate_cascade_controllers(&ds, a_cascade, a_cascade_size, b_cascade, b_cascade_size);
 		fxp_t ac_fxp[100];
 		fxp_t bc_fxp[100];
 		/* quantize cascade denominators */
-		fxp_double_to_fxp_array(a_cascade, ac_fxp, a_cascade_size);
+		fxp_float_to_fxp_array(a_cascade, ac_fxp, a_cascade_size);
 		/* quantize cascade numerators */
-		fxp_double_to_fxp_array(b_cascade, bc_fxp, b_cascade_size);
+		fxp_float_to_fxp_array(b_cascade, bc_fxp, b_cascade_size);
 	#elif ((REALIZATION == CDDFI) || (REALIZATION == CDDFII) || (REALIZATION == CTDDFII))
-		double da_cascade[100];
+		float da_cascade[100];
 		int a_cascade_size;
-		double db_cascade[100];
+		float db_cascade[100];
 		int b_cascade_size;
 		/* generate cascade realization with delta for the digital system */
 		__DSVERIFIER_generate_cascade_delta_controllers(&ds, da_cascade, a_cascade_size, db_cascade, b_cascade_size, impl.delta);
 		fxp_t ac_fxp[100];
 		fxp_t bc_fxp[100];
 		/* quantize cascade denominators */
-		fxp_double_to_fxp_array(da_cascade, ac_fxp, a_cascade_size);
+		fxp_float_to_fxp_array(da_cascade, ac_fxp, a_cascade_size);
 		/* quantize cascade numerators */
-		fxp_double_to_fxp_array(db_cascade, bc_fxp, b_cascade_size);
+		fxp_float_to_fxp_array(db_cascade, bc_fxp, b_cascade_size);
 	#endif
 
 	fxp_t y[X_SIZE_VALUE];
 	fxp_t x[X_SIZE_VALUE];
 
-	fxp_t min_fxp = fxp_double_to_fxp(impl.min);
-	fxp_t max_fxp = fxp_double_to_fxp(impl.max);
+	fxp_t min_fxp = fxp_float_to_fxp(impl.min);
+	fxp_t max_fxp = fxp_float_to_fxp(impl.max);
 
 	/* prepare inputs (all possibles values in dynamical range) */
 	fxp_t xaux[ds.b_size];

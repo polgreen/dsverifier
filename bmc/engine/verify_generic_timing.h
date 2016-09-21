@@ -25,8 +25,8 @@ int generic_timer = 0;
 int verify_generic_timing(void) {
 
 	/* prepare initial values */
-	double y[X_SIZE_VALUE];
-	double x[X_SIZE_VALUE];
+	float y[X_SIZE_VALUE];
+	float x[X_SIZE_VALUE];
 	int i;
 	for (i = 0; i < X_SIZE_VALUE; ++i) {
 		y[i] = 0;
@@ -41,9 +41,9 @@ int verify_generic_timing(void) {
 		Nw = ds.a_size > ds.b_size ? ds.a_size : ds.b_size;
 	#endif
 
-	double yaux[ds.a_size];
-	double xaux[ds.b_size];
-	double waux[Nw];
+	float yaux[ds.a_size];
+	float xaux[ds.b_size];
+	float waux[Nw];
 
 	for (i = 0; i < ds.a_size; ++i) {
 		yaux[i] = 0;
@@ -55,13 +55,13 @@ int verify_generic_timing(void) {
 		waux[i] = 0;
 	}
 
-	double xk, temp;
-	double *aptr, *bptr, *xptr, *yptr, *wptr;
+	float xk, temp;
+	float *aptr, *bptr, *xptr, *yptr, *wptr;
 
 	int j;
 
 	generic_timer += ((2 * hw.assembly.std) + (1 * hw.assembly.rjmp));
-	double initial_timer = generic_timer;
+	float initial_timer = generic_timer;
 	for (i = 0; i < X_SIZE_VALUE; ++i) {
 
 		generic_timer += ((2 * hw.assembly.ldd) + (1 * hw.assembly.adiw) + (2 * hw.assembly.std));
@@ -69,23 +69,23 @@ int verify_generic_timing(void) {
 
 		/* direct form I realization */
 		#if (REALIZATION == DFI || REALIZATION == DDFI)
-			generic_timing_shift_l_double(x[i], xaux, ds.b_size);
-			y[i] = generic_timing_double_direct_form_1(yaux, xaux, ds.a, ds.b, ds.a_size, ds.b_size);
-			generic_timing_shift_l_double(y[i], yaux, ds.a_size);
+			generic_timing_shift_l_float(x[i], xaux, ds.b_size);
+			y[i] = generic_timing_float_direct_form_1(yaux, xaux, ds.a, ds.b, ds.a_size, ds.b_size);
+			generic_timing_shift_l_float(y[i], yaux, ds.a_size);
 		#endif
 
 		/* direct form II realization */
 		#if (REALIZATION == DFII || REALIZATION == DDFII)
-			generic_timing_shift_r_double(0, waux, Nw);
-			 y[i] = generic_timing_double_direct_form_2(waux, x[i], ds.a, ds.b, ds.a_size, ds.b_size);
+			generic_timing_shift_r_float(0, waux, Nw);
+			 y[i] = generic_timing_float_direct_form_2(waux, x[i], ds.a, ds.b, ds.a_size, ds.b_size);
 		#endif
 
 		/* transposed direct form II realization */
 		#if (REALIZATION == TDFII || REALIZATION == TDDFII)
-			y[i] = generic_timing_double_transposed_direct_form_2(waux, x[i], ds.a, ds.b, ds.a_size, ds.b_size);
+			y[i] = generic_timing_float_transposed_direct_form_2(waux, x[i], ds.a, ds.b, ds.a_size, ds.b_size);
 		#endif
 
-		double spent_time = (((double) generic_timer) * hw.cycle);
+		float spent_time = (((float) generic_timer) * hw.cycle);
 		assert(spent_time <= ds.sample_time);
 		generic_timer = initial_timer;
 	}

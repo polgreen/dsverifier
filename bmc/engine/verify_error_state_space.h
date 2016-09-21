@@ -15,7 +15,7 @@
 */
 
 extern digital_system_state_space _controller;
-extern double error_limit;
+extern float error_limit;
 
 int verify_error_state_space(void){
 	overflow_mode = 0;
@@ -65,9 +65,9 @@ int verify_error_state_space(void){
 		}
 	}
 
-	double __quant_error = 0.0;
+	float __quant_error = 0.0;
 
-	double output_double = double_state_space_representation();
+	float output_float = float_state_space_representation();
 
 	for(i=0; i<nStates;i++){
 		for(j=0; j<nStates;j++){
@@ -111,11 +111,11 @@ int verify_error_state_space(void){
 		}
 	}
 
-	double output_fxp = fxp_state_space_representation();
+	float output_fxp = fxp_state_space_representation();
 
 	fxp_verify_overflow(output_fxp);
 
-	__quant_error = (((output_fxp - output_double)/output_double)) * 100;
+	__quant_error = (((output_fxp - output_float)/output_float)) * 100;
 
 	assert(__quant_error < error_limit && __quant_error > (-error_limit));
 

@@ -27,7 +27,7 @@ int verify_observability(void){
     fxp_t observabilityMatrix[LIMIT][LIMIT];
     fxp_t backup[LIMIT][LIMIT];
     fxp_t backupSecond[LIMIT][LIMIT];
-	double observabilityMatrix_double[LIMIT][LIMIT];
+	float observabilityMatrix_float[LIMIT][LIMIT];
 
 	//initializing variables
 	for(i=0; i<nStates;i++){
@@ -43,13 +43,13 @@ int verify_observability(void){
 	//converting A and C matrix to fixed point
 	for(i=0; i<nStates;i++){
 		for(j=0; j<nStates;j++){
-			A_fpx[i][j]= fxp_double_to_fxp(_controller.A[i][j]);
+			A_fpx[i][j]= fxp_float_to_fxp(_controller.A[i][j]);
 		}
 	}
 
 	for(i=0; i<nOutputs;i++){
 		for(j=0; j<nStates;j++){
-			C_fpx[i][j]= fxp_double_to_fxp(_controller.C[i][j]);
+			C_fpx[i][j]= fxp_float_to_fxp(_controller.C[i][j]);
 		}
 	}
 
@@ -70,12 +70,12 @@ int verify_observability(void){
 /*
 		for(i=0; i<(nStates*nOutputs);i++){
 			for(j=0; j<nStates;j++){
-				observabilityMatrix_double[i][j]= fxp_to_double(observabilityMatrix[i][j]);
+				observabilityMatrix_float[i][j]= fxp_to_float(observabilityMatrix[i][j]);
 			}
 		}
 
 		printf("#matrix: OBSERVABILITY MATRIX:\n\n");
-		print_matrix(observabilityMatrix_double,(nStates*nOutputs),nStates);
+		print_matrix(observabilityMatrix_float,(nStates*nOutputs),nStates);
 */
 		for(i=0; i<nStates;i++){
 			for(j=0; j<(nStates*nOutputs);j++){
@@ -88,12 +88,12 @@ int verify_observability(void){
 /*
 		for(i=0; i<nStates;i++){
 			for(j=0; j<(nStates*nOutputs);j++){
-				observabilityMatrix_double[i][j]= fxp_to_double(backup[i][j]);
+				observabilityMatrix_float[i][j]= fxp_to_float(backup[i][j]);
 			}
 		}
 
 		printf("#matrix: TRANSPOSE OBSERVABILITY MATRIX:\n\n");
-		print_matrix(observabilityMatrix_double,nStates,(nStates*nOutputs));
+		print_matrix(observabilityMatrix_float,nStates,(nStates*nOutputs));
 */
 		//Calculating O'*O
 		fxp_t mimo_observabilityMatrix_fxp[LIMIT][LIMIT];
@@ -101,22 +101,22 @@ int verify_observability(void){
 /*
 		for(i=0; i<nStates;i++){
 			for(j=0; j<nStates;j++){
-				observabilityMatrix_double[i][j]= fxp_to_double(mimo_observabilityMatrix_fxp[i][j]);
+				observabilityMatrix_float[i][j]= fxp_to_float(mimo_observabilityMatrix_fxp[i][j]);
 			}
 		}
 
 		printf("#matrix: FINAL MATRIX:\n\n");
-		print_matrix(observabilityMatrix_double,nStates,nStates);
+		print_matrix(observabilityMatrix_float,nStates,nStates);
 */
-		//Converting controllability matrix from fixed point to double
+		//Converting controllability matrix from fixed point to float
 		for(i=0; i<nStates;i++){
 			for(j=0; j<nStates;j++){
-				observabilityMatrix_double[i][j]= fxp_to_double(mimo_observabilityMatrix_fxp[i][j]);
+				observabilityMatrix_float[i][j]= fxp_to_float(mimo_observabilityMatrix_fxp[i][j]);
 			}
 		}
 
 		//Calculating determinant
-		assert(determinant(observabilityMatrix_double,nStates) != 0);
+		assert(determinant(observabilityMatrix_float,nStates) != 0);
 	}else{
 		for(i=0; i<nStates;i++){
 			fxp_exp_matrix(nStates,nStates,A_fpx,i,backup);
@@ -128,10 +128,10 @@ int verify_observability(void){
 
 		for(i=0; i<nStates;i++){
 			for(j=0; j<nStates;j++){
-				observabilityMatrix_double[i][j]= fxp_to_double(observabilityMatrix[i][j]);
+				observabilityMatrix_float[i][j]= fxp_to_float(observabilityMatrix[i][j]);
 			}
 		}
-		assert(determinant(observabilityMatrix_double,nStates) != 0);
+		assert(determinant(observabilityMatrix_float,nStates) != 0);
 	}
 
 	return 0;

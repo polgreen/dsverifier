@@ -24,46 +24,46 @@ extern digital_system plant;
 extern digital_system plant_cbmc;
 extern digital_system controller;
 
-double nondet_double();
+float nondet_float();
 
 int verify_limit_cycle_closed_loop(void){
 
 	overflow_mode = WRAPAROUND;
 
 	/* generating closed loop for series or feedback */
-	double * c_num = controller.b;
+	float * c_num = controller.b;
 	int c_num_size = controller.b_size;
-	double * c_den = controller.a;
+	float * c_den = controller.a;
 	int c_den_size = controller.a_size;
 
 	/* quantizing controller coefficients */
 	fxp_t c_num_fxp[controller.b_size];
-	fxp_double_to_fxp_array(c_num, c_num_fxp, controller.b_size);
+	fxp_float_to_fxp_array(c_num, c_num_fxp, controller.b_size);
 	fxp_t c_den_fxp[controller.a_size];
-	fxp_double_to_fxp_array(c_den, c_den_fxp, controller.a_size);
+	fxp_float_to_fxp_array(c_den, c_den_fxp, controller.a_size);
 
 	/* getting quantized controller coefficients  */
-	double c_num_qtz[controller.b_size];
-	fxp_to_double_array(c_num_qtz, c_num_fxp, controller.b_size);
-	double c_den_qtz[controller.a_size];
-	fxp_to_double_array(c_den_qtz, c_den_fxp, controller.a_size);
+	float c_num_qtz[controller.b_size];
+	fxp_to_float_array(c_num_qtz, c_num_fxp, controller.b_size);
+	float c_den_qtz[controller.a_size];
+	fxp_to_float_array(c_den_qtz, c_den_fxp, controller.a_size);
 
 	/* getting plant coefficients */
 	#if (BMC == ESBMC)
-		double * p_num = plant.b;
+		float * p_num = plant.b;
 		int p_num_size = plant.b_size;
-		double * p_den = plant.a;
+		float * p_den = plant.a;
 		int p_den_size = plant.a_size;
 	#elif (BMC == CBMC)
-		double * p_num = plant_cbmc.b;
+		float * p_num = plant_cbmc.b;
 		int p_num_size = plant.b_size;
-		double * p_den = plant_cbmc.a;
+		float * p_den = plant_cbmc.a;
 		int p_den_size = plant.a_size;
 	#endif
 
-	double ans_num[100];
+	float ans_num[100];
 	int ans_num_size = controller.b_size + plant.b_size - 1;
-	double ans_den[100];
+	float ans_den[100];
 	int ans_den_size = controller.a_size + plant.a_size - 1;
 
 	#if (CONNECTION_MODE == SERIES)
@@ -73,12 +73,12 @@ int verify_limit_cycle_closed_loop(void){
 	#endif
 
   int i;
-	double y[X_SIZE_VALUE];
-	double x[X_SIZE_VALUE];
+	float y[X_SIZE_VALUE];
+	float x[X_SIZE_VALUE];
 
 	/* prepare inputs (all possibles values in dynamical range) */
-	double xaux[ans_num_size];
-	double nondet_constant_input = nondet_double();
+	float xaux[ans_num_size];
+	float nondet_constant_input = nondet_float();
 	__DSVERIFIER_assume(nondet_constant_input >= impl.min && nondet_constant_input <= impl.max);
 	for (i = 0; i < X_SIZE_VALUE; ++i) {
 		x[i] = nondet_constant_input;
@@ -88,12 +88,12 @@ int verify_limit_cycle_closed_loop(void){
 		xaux[i] = nondet_constant_input;
 	}
 
-	double yaux[ans_den_size];
-	double y0[ans_den_size];
+	float yaux[ans_den_size];
+	float y0[ans_den_size];
 
 	int Nw = ans_den_size > ans_num_size ? ans_den_size : ans_num_size;
-	double waux[Nw];
-	double w0[Nw];
+	float waux[Nw];
+	float w0[Nw];
 
 	#if (REALIZATION == DFI)
 		for (i = 0; i < ans_den_size; ++i) {
@@ -109,8 +109,8 @@ int verify_limit_cycle_closed_loop(void){
 		}
 	#endif
 
-	double xk, temp;
-	double *aptr, *bptr, *xptr, *yptr, *wptr;
+	float xk, temp;
+	float *aptr, *bptr, *xptr, *yptr, *wptr;
 
 	int j;
 	for(i=0; i<X_SIZE_VALUE; ++i){
@@ -118,26 +118,26 @@ int verify_limit_cycle_closed_loop(void){
 		/* direct form I realization */
 		#if (REALIZATION == DFI)
 			shiftLDouble(x[i], xaux, ans_num_size);
-			y[i] = double_direct_form_1(yaux, xaux, ans_den, ans_num, ans_den_size, ans_num_size);
+			y[i] = float_direct_form_1(yaux, xaux, ans_den, ans_num, ans_den_size, ans_num_size);
 			shiftLDouble(y[i], yaux, ans_den_size);
 		#endif
 
 
 		/* direct form II realization */
 		#if (REALIZATION == DFII)
-			shiftRDdouble(0, waux, Nw);
-			y[i] = double_direct_form_2(waux, x[i], ans_den, ans_num, ans_den_size, ans_num_size);
+			shiftRDfloat(0, waux, Nw);
+			y[i] = float_direct_form_2(waux, x[i], ans_den, ans_num, ans_den_size, ans_num_size);
 		#endif
 
 		/* transposed direct form II realization */
 		#if (REALIZATION == TDFII)
-			y[i] = double_transposed_direct_form_2(waux, x[i], ans_den, ans_num, ans_den_size, ans_num_size);
+			y[i] = float_transposed_direct_form_2(waux, x[i], ans_den, ans_num, ans_den_size, ans_num_size);
 		#endif
 
 	}
 
 	/* check oscillations in produced output */
-	double_check_persistent_limit_cycle(y, X_SIZE_VALUE);
+	float_check_persistent_limit_cycle(y, X_SIZE_VALUE);
 
 	return 0;
 }

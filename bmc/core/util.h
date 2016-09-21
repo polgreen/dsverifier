@@ -19,7 +19,7 @@
 #include <stdlib.h>
 
 /** initialise an array with zeroes */
-void initialize_array(double v[], int n){
+void initialize_array(float v[], int n){
    int i;
    for(i=0; i<n; i++){
 	   v[i] = 0;
@@ -27,7 +27,7 @@ void initialize_array(double v[], int n){
 }
 
 /** invert an array */
-void revert_array(double v[], double out[], int n){
+void revert_array(float v[], float out[], int n){
    initialize_array(out,n);
    int i;
    for(i=0; i<n; i++){
@@ -36,9 +36,9 @@ void revert_array(double v[], double out[], int n){
 }
 
 /** a simplify equivalent for Math.pow() */
-double internal_pow(double a, double b){
+float internal_pow(float a, float b){
    int i;
-   double acc = 1;
+   float acc = 1;
    for (i=0; i < b; i++){
 	  acc = acc*a;
    }
@@ -46,7 +46,7 @@ double internal_pow(double a, double b){
 }
 
 /** a simplify equivalent for Math.abs() */
-double internal_abs(double a){
+float internal_abs(float a){
    return a < 0 ? -a : a;
 }
 
@@ -56,21 +56,21 @@ int fatorial(int n){
 }
 
 /** check stability for a polynomial using jury criteria */
-int check_stability(double a[], int n){
+int check_stability(float a[], int n){
    int lines = 2 * n - 1;
    int columns = n;
-   double m[lines][n];
+   float m[lines][n];
    int i,j;
 
    /* to put current values in stability counter-example
     * look for current_stability (use: --no-slice) */
-   double current_stability[n];
+   float current_stability[n];
    for (i=0; i < n; i++){
 	   current_stability[i] = a[i];
    }
 
    /* check the first constraint condition F(1) > 0 */
-   double sum = 0;
+   float sum = 0;
    for (i=0; i < n; i++){
 	   sum += a[i];
    }
@@ -138,7 +138,7 @@ int check_stability(double a[], int n){
  * The arrays a and must be in the crescent degree order (e.g.: a0*1+a_1*x^1+a2*x^3...)
  * The result will be stored in ans[] and the size of ans[] will be stored in Nans.
  */
-void poly_sum(double a[], int Na, double b[], int Nb, double ans[], int Nans){
+void poly_sum(float a[], int Na, float b[], int Nb, float ans[], int Nans){
 	int i;
 	Nans = Na>Nb? Na:Nb;
 
@@ -162,7 +162,7 @@ void poly_sum(double a[], int Na, double b[], int Nb, double ans[], int Nans){
  * The arrays a and must be in the crescent degree order (e.g.: a0*1+a_1*x^1+a2*x^3...)
  * The result will be stored in ans[] and the size of ans[] will be stored in Nans.
  */
-void poly_mult(double a[], int Na, double b[], int Nb, double ans[], int Nans){
+void poly_mult(float a[], int Na, float b[], int Nb, float ans[], int Nans){
 	int i;
 	int j;
 	int k;
@@ -184,7 +184,7 @@ void poly_mult(double a[], int Na, double b[], int Nb, double ans[], int Nans){
 }
 
 /** function to check oscillations in an array (used in limit cycle property) */
-void double_check_oscillations(double * y, int y_size){
+void float_check_oscillations(float * y, int y_size){
 	/* check if the first elements are the same, and if last repeats */
 	__DSVERIFIER_assume(y[0] != y[y_size - 1]);
 	int window_timer = 0;
@@ -215,9 +215,9 @@ void double_check_oscillations(double * y, int y_size){
 }
 
 /* verify limit_cycle oscillations in last outputs */
-void double_check_limit_cycle(double * y, int y_size){
+void float_check_limit_cycle(float * y, int y_size){
 	/* last element is the reference */
-	double reference = y[y_size - 1];
+	float reference = y[y_size - 1];
 	int idx = 0;
 	int window_size = 1;
 	/* find window size */
@@ -251,13 +251,13 @@ void double_check_limit_cycle(double * y, int y_size){
 }
 
 /* verify limit_cycle oscillations in last outputs */
-void double_check_persistent_limit_cycle(double * y, int y_size){
+void float_check_persistent_limit_cycle(float * y, int y_size){
 
 	/* first element is the reference */
 	int idy = 0;
 	int count_same = 0;
 	int window_size = 0;
-	double reference = y[0];
+	float reference = y[0];
 
 	/* find the window size (X X Y Y), is equivalent to 4 */
 	for(idy = 0; idy < y_size; idy++){
@@ -275,7 +275,7 @@ void double_check_persistent_limit_cycle(double * y, int y_size){
 	__DSVERIFIER_assume(window_size > 1 && window_size <= y_size/2);
 
 	/* get the window elements */
-	double lco_elements[window_size];
+	float lco_elements[window_size];
 	for(idy = 0; idy < y_size; idy++){
     if (idy < window_size){
 		    lco_elements[idy] = y[idy];
@@ -302,7 +302,7 @@ void double_check_persistent_limit_cycle(double * y, int y_size){
 }
 
 /* print array elements */
-void print_array_elements(char * name, double * v, int n){
+void print_array_elements(char * name, float * v, int n){
    printf("%s = {", name);
    int i;
    for(i=0; i < n; i++){
@@ -312,7 +312,7 @@ void print_array_elements(char * name, double * v, int n){
 }
 
 /* adds two matrices */
-void double_add_matrix( unsigned int lines,  unsigned int columns, double m1[LIMIT][LIMIT], double m2[LIMIT][LIMIT], double result[LIMIT][LIMIT]){
+void float_add_matrix( unsigned int lines,  unsigned int columns, float m1[LIMIT][LIMIT], float m2[LIMIT][LIMIT], float result[LIMIT][LIMIT]){
 	unsigned int i, j;
     for (i = 0; i < lines; i++){
     	for (j = 0; j < columns; j++){
@@ -323,7 +323,7 @@ void double_add_matrix( unsigned int lines,  unsigned int columns, double m1[LIM
 }
 
 /* subtracts two matrices */
-void double_sub_matrix( unsigned int lines,  unsigned int columns, double m1[LIMIT][LIMIT], double m2[LIMIT][LIMIT], double result[LIMIT][LIMIT]){
+void float_sub_matrix( unsigned int lines,  unsigned int columns, float m1[LIMIT][LIMIT], float m2[LIMIT][LIMIT], float result[LIMIT][LIMIT]){
 	unsigned int i, j;
     for (i = 0; i < lines; i++){
     	for (j = 0; j < columns; j++){
@@ -334,7 +334,7 @@ void double_sub_matrix( unsigned int lines,  unsigned int columns, double m1[LIM
 }
 
 /* multiplies two matrices */
-void double_matrix_multiplication( unsigned int i1, unsigned int j1, unsigned int i2, unsigned int j2, double m1[LIMIT][LIMIT], double m2[LIMIT][LIMIT], double m3[LIMIT][LIMIT]){
+void float_matrix_multiplication( unsigned int i1, unsigned int j1, unsigned int i2, unsigned int j2, float m1[LIMIT][LIMIT], float m2[LIMIT][LIMIT], float m3[LIMIT][LIMIT]){
 
 	unsigned int i, j, k;
     if (j1 == i2) { //Checking if the multiplication is possible
@@ -349,9 +349,9 @@ void double_matrix_multiplication( unsigned int i1, unsigned int j1, unsigned in
             for (j=0; j<j2; j++) {
                 for (k=0; k<j1; k++) {
                     //printf("i: %d \t j: %d\n", i,j);
-                	double mult = (m1[i][k] * m2[k][j]);
-                	//double m3temp = m3[i][j];
-                	//double sum =  m3[i][j] + mult;
+                	float mult = (m1[i][k] * m2[k][j]);
+                	//float m3temp = m3[i][j];
+                	//float sum =  m3[i][j] + mult;
                     m3[i][j] = m3[i][j] + (m1[i][k] * m2[k][j]);
             		//printf("[MULT] %.10f + %.10f = %.10f\n", m1[i][k], m2[k][j], mult);
             		//printf("[ADD] %.10f + %.10f = %.10f\n", m3temp, mult, sum);
@@ -395,7 +395,7 @@ void fxp_exp_matrix(unsigned int lines,  unsigned int columns, fxp_t m1[LIMIT][L
 	    for (i = 0; i < lines; i++){
 	    	for (j = 0; j < columns; j++){
 	    		if(i == j){
-	    			result[i][j] = fxp_double_to_fxp(1.0);
+	    			result[i][j] = fxp_float_to_fxp(1.0);
 	    		} else {
 	    			result[i][j] = 0.0;
 	    		}
@@ -425,9 +425,9 @@ void fxp_exp_matrix(unsigned int lines,  unsigned int columns, fxp_t m1[LIMIT][L
 	}
 }
 
-void double_exp_matrix(unsigned int lines,  unsigned int columns, double m1[LIMIT][LIMIT], unsigned int expNumber, double result[LIMIT][LIMIT]){
+void float_exp_matrix(unsigned int lines,  unsigned int columns, float m1[LIMIT][LIMIT], unsigned int expNumber, float result[LIMIT][LIMIT]){
 	unsigned int i, j, k, l;
-	double m2[LIMIT][LIMIT];
+	float m2[LIMIT][LIMIT];
 
 	if(expNumber == 0){
 	    for (i = 0; i < lines; i++){
@@ -478,7 +478,7 @@ void fxp_sub_matrix( unsigned int lines,  unsigned int columns, fxp_t m1[LIMIT][
 }
 
 /* prints a matrix */
-void print_matrix(double matrix[LIMIT][LIMIT], unsigned int lines, unsigned int columns){
+void print_matrix(float matrix[LIMIT][LIMIT], unsigned int lines, unsigned int columns){
     printf("\nMatrix\n=====================\n\n");
     unsigned int i, j;
     for (i=0; i<lines; i++) {
@@ -495,11 +495,11 @@ void print_matrix(double matrix[LIMIT][LIMIT], unsigned int lines, unsigned int 
    Source: http://paulbourke.net/miscellaneous/determinant/
    Author: Paul Bourke
 */
-double determinant(double a[LIMIT][LIMIT],int n)
+float determinant(float a[LIMIT][LIMIT],int n)
 {
    int i,j,j1,j2;
-   double det = 0;
-   double m[LIMIT][LIMIT];
+   float det = 0;
+   float m[LIMIT][LIMIT];
 
    if (n < 1) { /* Error */
 
@@ -526,19 +526,19 @@ double determinant(double a[LIMIT][LIMIT],int n)
    return(det);
 }
 
-double fxp_determinant(fxp_t a_fxp[LIMIT][LIMIT],int n)
+float fxp_determinant(fxp_t a_fxp[LIMIT][LIMIT],int n)
 {
    int i,j,j1,j2;
-   double a[LIMIT][LIMIT];
+   float a[LIMIT][LIMIT];
 
 	for(i=0; i<n;i++){
 		for(j=0; j<n;j++){
-			a[i][j]= fxp_to_double(a_fxp[i][j]);
+			a[i][j]= fxp_to_float(a_fxp[i][j]);
 		}
 	}
 
-   double det = 0;
-   double m[LIMIT][LIMIT];
+   float det = 0;
+   float m[LIMIT][LIMIT];
 
    if (n < 1) { /* Error */
 
@@ -568,7 +568,7 @@ double fxp_determinant(fxp_t a_fxp[LIMIT][LIMIT],int n)
 /*
    Transpose of a square matrix, do it in place
 */
-void transpose(double a[LIMIT][LIMIT], double b[LIMIT][LIMIT],int n, int m)
+void transpose(float a[LIMIT][LIMIT], float b[LIMIT][LIMIT],int n, int m)
 {
    int i,j;
 

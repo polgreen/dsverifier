@@ -24,7 +24,7 @@ int binomial_coefficient(int n, int p){
    return fatorial(n) / (fatorial(p) * fatorial(n-p));
 }
 
-void binomial(int degree, double delta, double out[]){
+void binomial(int degree, float delta, float out[]){
    initialize_array(out, 3);
    int i;
    for(i=0; i<=degree; i++){
@@ -33,16 +33,16 @@ void binomial(int degree, double delta, double out[]){
 }
 
 /** calculate the delta coefficients for a polynomial */
-void generate_delta_coefficients(double vetor[], double out[], int n, double delta){
+void generate_delta_coefficients(float vetor[], float out[], int n, float delta){
    initialize_array(out,n);
-   double a_invertido[n];
+   float a_invertido[n];
    initialize_array(a_invertido,n);
    revert_array(vetor, a_invertido, n);
-   double _a[n];
+   float _a[n];
    initialize_array(_a,n);
    int i,j;
    for(i=0; i < n; i++){
-	  double b[n+1];
+	  float b[n+1];
 	  initialize_array(b,n+1);
 	  binomial(i, delta, b);
 	  for(j=0; j<i+1; j++){
@@ -54,17 +54,17 @@ void generate_delta_coefficients(double vetor[], double out[], int n, double del
 }
 
 /** calculate the delta coefficients for a polynomial */
-void generate_delta_coefficients_with_base(double vetor[], double out[], int n, double delta){
+void generate_delta_coefficients_with_base(float vetor[], float out[], int n, float delta){
 	generate_delta_coefficients(vetor, out, n, delta);
 	int i;
-	double base = out[0];
+	float base = out[0];
 	for(i=0; i<n; i++){
 		out[i] = out[i] / base;
 	}
 }
 
 /* get a transfer function in delta domain */
-void get_delta_transfer_function(double b[], double b_out[], int b_size, double a[], double a_out[], int a_size, double delta){
+void get_delta_transfer_function(float b[], float b_out[], int b_size, float a[], float a_out[], int a_size, float delta){
 	/* generate delta coefficients */
 	generate_delta_coefficients(b, b_out, b_size, delta);
 	generate_delta_coefficients(a, a_out, a_size, delta);
@@ -81,11 +81,11 @@ return (n * nchoosek(n - 1, k - 1)) / k;
 }
 
 /* get a digital system represented in transfer function and transform in delta form */
-void get_delta_transfer_function_with_base(double b[], double b_out[], int b_size, double a[], double a_out[], int a_size, double delta){
+void get_delta_transfer_function_with_base(float b[], float b_out[], int b_size, float a[], float a_out[], int a_size, float delta){
 	int i,j;
 	int N = a_size - 1;
 	int M = b_size - 1;
-	double sum_delta_operator;
+	float sum_delta_operator;
 
 	/*delta form for denominator*/
 	for(i=0; i<=N; i++)
