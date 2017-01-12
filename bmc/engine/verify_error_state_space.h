@@ -237,12 +237,6 @@ double fxp_ss_closed_loop_quantization_error(){
 		}
 	}
 
-	for(i=0; i<nInputs;i++){
-		for(j=0; j<nOutputs;j++){
-			K_fpx[i][j]=0;
-		}
-	}
-
 	for(i=0; i<nOutputs;i++){
 		for(j=0; j<1;j++){
 			outputs_fpx[i][j]=0;
