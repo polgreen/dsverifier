@@ -55,37 +55,27 @@ double ss_system_quantization_error(fxp_t inputs){
 			}
 
 			for(i=0; i<nStates;i++){
-				for(j=0; j<1;j++){
-					__backupController.states[i][j]= (_controller.states[i][j]);
-				}
+					__backupController.states[i][0]= (_controller.states[i][0]);
 			}
 
 			for(i=0; i<nInputs;i++){
-				for(j=0; j<1;j++){
-					__backupController.inputs[i][j]= (_controller.inputs[i][j]);
-				}
+					__backupController.inputs[i][0]= (_controller.inputs[i][0]);
 			}
 
 			for(i=0; i<nOutputs;i++){
-				for(j=0; j<1;j++){
-					__backupController.outputs[i][j]= (_controller.outputs[i][j]);
-				}
+					__backupController.outputs[i][0]= (_controller.outputs[i][0]);
 			}
 
 			double __quant_error = 0.0;
 
 			for(i=0; i<nStates;i++){
-				for(j=0; j<1;j++){
-					_controller.states[i][j]= (new_state[i][j]);
-				}
+					_controller.states[i][0]= (new_state[i][0]);
 			}
 
 			double output_double = double_state_space_representation();
 			
 			for(i=0; i<nStates;i++){
-				for(j=0; j<1;j++){
-					new_state[i][j]= (_controller.states[i][j]);
-				}
+					new_state[i][0]= (_controller.states[i][0]);
 			}
 
 			__backupController.inputs[0][0] = inputs;
@@ -115,34 +105,24 @@ double ss_system_quantization_error(fxp_t inputs){
 			}
 
 			for(i=0; i<nStates;i++){
-				for(j=0; j<1;j++){
-					_controller.states[i][j] = __backupController.states[i][j];
-				}
+					_controller.states[i][0] = __backupController.states[i][0];
 			}
 
 			for(i=0; i<nInputs;i++){
-				for(j=0; j<1;j++){
-					_controller.inputs[i][j] = __backupController.inputs[i][j];
-				}
+					_controller.inputs[i][0] = __backupController.inputs[i][0];
 			}
 
 			for(i=0; i<nOutputs;i++){
-				for(j=0; j<1;j++){
-					_controller.outputs[i][j] = __backupController.outputs[i][j];
-				}
+					_controller.outputs[i][0] = __backupController.outputs[i][0];
 			}
 
 			for(i=0; i<nStates;i++){
-				for(j=0; j<1;j++){
-					_controller.states[i][j]= (new_stateFWL[i][j]);
-				}
+					_controller.states[i][0]= (new_stateFWL[i][0]);
 			} 
 			double output_fxp = fxp_state_space_representation();
 			
 			for(i=0; i<nStates;i++){
-				for(j=0; j<1;j++){
-					new_stateFWL[i][j]= (_controller.states[i][j]);
-				}
+					new_stateFWL[i][0]= (_controller.states[i][0]);
 			}
 
 			__quant_error = output_double - output_fxp;
@@ -277,17 +257,13 @@ double fxp_ss_closed_loop_quantization_error(){
 				_controller.outputs);
 
 		for(k=0; k<nOutputs;k++){
-			for(j=0; j<1;j++){
-				outputs_fpx[k][j]= fxp_double_to_fxp(_controller.outputs[k][j]);
-			}
+				outputs_fpx[k][0]= fxp_double_to_fxp(_controller.outputs[k][0]);
 		}
 
 		fxp_matrix_multiplication(nInputs,nOutputs,nOutputs,1,K_fpx,outputs_fpx,result_fxp);
 
 		for(k=0; k<nInputs;k++){
-			for(j=0; j<1;j++){
-				result1[k][j]= fxp_to_double(result_fxp[k][j]);
-			}
+				result1[k][0]= fxp_to_double(result_fxp[k][0]);
 		}
 
 		printf("### fxp: U (before) = %.9f", _controller.inputs[0][0]);
@@ -323,15 +299,11 @@ int verify_error_state_space(void){
 	int i,j;
 
 	for(i=0; i<nStates;i++){
-		for(j=0; j<1;j++){
-	  	new_state[i][j]= (_controller.states[i][j]);
-		}
+	  	new_state[i][0]= (_controller.states[i][0]);
 	}
 
 	for(i=0; i<nStates;i++){
-		for(j=0; j<1;j++){
-	 	 new_stateFWL[i][j]= (_controller.states[i][j]);
-		}
+	 	 new_stateFWL[i][0]= (_controller.states[i][0]);
 	}
 	
 	overflow_mode = 0;
