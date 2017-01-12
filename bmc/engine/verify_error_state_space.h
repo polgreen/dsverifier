@@ -148,7 +148,7 @@ double ss_closed_loop_quantization_error(){
 	}
 
 	for(i=0; i<nInputs;i++){
-		for(j=0; j<1;j++){
+		for(j=0; j<1;j++){ //BUG:: this shouldn't take inputs as reference
 			reference[i][j]= (_controller.inputs[i][j]);
 		}
 	}
