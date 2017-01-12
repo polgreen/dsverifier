@@ -324,12 +324,6 @@ int verify_error_state_space(void){
 
 	if(closed_loop){
 		__quant_error = ss_closed_loop_quantization_error() - fxp_ss_closed_loop_quantization_error();
-	} else {
-	for (i=0; i < K_SIZE; i++)
-	{
-	  __quant_error = ss_system_quantization_error(x[i]);
-	}
-
 	}
 
 	assert(__quant_error < error_limit && __quant_error > ((-1)*error_limit));

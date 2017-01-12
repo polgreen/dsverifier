@@ -1564,6 +1564,7 @@ void extract_data_from_ss_file()
   std::ifstream verification_file(desired_filename);
   std::string current_line;
   getline( verification_file, current_line );
+  std::cout<<"line: "<<current_line<<"\n";
 
   /* getting implementation specifications */
   std::string str_bits;
@@ -1580,9 +1581,9 @@ void extract_data_from_ss_file()
   impl.frac_bits = std::stoi(str_bits);
   str_bits.clear();
 
-  getline( verification_file, current_line ); // range
+ // getline( verification_file, current_line ); // range
 
-  std::string str_range;
+/*  std::string str_range;
   for(i = 0; current_line[i] != '[';i++);
   i++;
   for(; current_line[i] != ','; i++)
@@ -1593,9 +1594,13 @@ void extract_data_from_ss_file()
   for(; current_line[i] != ']'; i++)
 	str_range.push_back(current_line[i]);
   impl.max = std::stoi(str_range);
-  str_range.clear();
+  str_range.clear();*/
 
-  getline( verification_file, current_line ); // states
+  impl.min = -10;
+  impl.max = 10;
+
+  getline( verification_file, current_line );
+
 
   for(i = 0; current_line[i] != '=';i++){}
 
